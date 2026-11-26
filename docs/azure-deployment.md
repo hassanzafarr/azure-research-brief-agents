@@ -47,13 +47,15 @@ In a second terminal, run `scripts/smoke.sh http://localhost:8502`. When you're 
 
 ## Connect Azure once
 
-Use Bash, Azure CLI, and an Azure subscription where you can register resource providers, create resource groups, and assign roles. Azure Container Registry Basic, Blob Storage, app usage, and log ingestion can incur charges.
+Use Bash, Azure CLI, GitHub CLI, and an Azure subscription where you can register resource providers, create resource groups, and assign roles. Azure Container Registry Basic, Blob Storage, app usage, and log ingestion can incur charges.
 
 1. Run `az login` and select the subscription with `az account set --subscription <subscription-id>`. Confirm the subscription before creating resources with `az account show --query '{name:name,id:id}'`.
 2. From the repository root, run `scripts/bootstrap-azure.sh OWNER/REPO westeurope research-brief`. Replace the GitHub repository or Azure region as needed. The script creates two dedicated resource groups, a storage account with a private state container, and the GitHub workload identity. The identity trusts GitHub tokens issued for this repository's `main` branch.
 3. Save the five values printed by the script under **GitHub repository → Settings → Secrets and variables → Actions → Variables**. Set `AZURE_CLIENT_ID` last to enable deployment. The values are identifiers. GitHub obtains short-lived Azure credentials using OIDC. Keep Azure sign-in tokens and provider API keys out of the repository.
 4. Merge the deployment changes to `main` or select **Actions → Test and deploy to Azure → Run workflow** once the workflow is present on `main`. If Azure reports a permission error immediately after bootstrap, allow time for Azure RBAC propagation and rerun the workflow.
 5. Open the app URL in the completed run's summary. Enter your provider keys and generate a brief to verify a real research run.
+
+The bootstrap script uses GitHub's immutable OIDC subject format for repositories created after July 15, 2026. For a repository with a customized subject or one that opted in to immutable subjects, set `GITHUB_OIDC_SUBJECT` to its exact `main` branch subject when running the script. [GitHub OIDC subject formats](https://docs.github.com/en/actions/reference/security/oidc#immutable-subject-claims)
 
 For a one-off deployment, enter the same five Azure identifiers in **Run workflow** on `main`. This works before you configure repository variables. Set the repository variables to enable deployments on future pushes to `main`.
 

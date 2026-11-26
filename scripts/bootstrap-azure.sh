@@ -16,7 +16,17 @@ state_group="rg-$project-state"
 digest=$(printf '%s' "$subscription_id/$state_group" | sha256sum)
 state_account="stbrief${digest:0:16}"
 identity="github-deploy"
-subject="repo:$github_repo:ref:refs/heads/main"
+
+subject=${GITHUB_OIDC_SUBJECT:-}
+if [[ -z "$subject" ]]; then
+  repo_metadata=$(gh api "repos/$github_repo" --jq '[.owner.login, .owner.id, .name, .id, .created_at] | @tsv')
+  IFS=$'\t' read -r repo_owner owner_id repo_name repo_id created_at <<<"$repo_metadata"
+  if [[ "${created_at:0:10}" > 2026-07-15 ]]; then
+    subject="repo:$repo_owner@$owner_id/$repo_name@$repo_id:ref:refs/heads/main"
+  else
+    subject="repo:$repo_owner/$repo_name:ref:refs/heads/main"
+  fi
+fi
 
 ensure_group() {
   local group=$1
