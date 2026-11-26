@@ -129,6 +129,8 @@ spend cap in the Anthropic console if you expose this widely.
 
 ## Azure deployment
 
+The Azure demo uses your Anthropic and Tavily API keys. [Open the Azure demo](https://research-brief.graypebble-a23268c3.westeurope.azurecontainerapps.io)
+
 The Azure deployment workflow tests the LangGraph app, builds its Docker image,
 and runs a Kubernetes smoke test with kind. On `main`, it uses GitHub Actions
 OIDC and Terraform to publish the tested image to Azure Container Registry and
