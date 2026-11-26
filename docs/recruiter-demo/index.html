@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore the four-agent LangGraph research workflow in a browser-based demo, and review the verified Azure deployment.">
+  <title>Research Brief Generator · Hassan Zafar</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./demo.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="./" aria-label="Research Brief Generator home">
+        <span class="brand-mark" aria-hidden="true">≡</span>
+        <span>Research Brief Generator</span>
+      </a>
+      <a class="repo-link" href="https://github.com/hassanzafarr/azure-research-brief-agents">View source</a>
+    </div>
+  </header>
+  <main class="shell">
+    <section class="intro" aria-labelledby="intro-title">
+      <div>
+        <p class="byline">A LANGGRAPH PROJECT BY HASSAN ZAFAR</p>
+        <h1 id="intro-title">From a question to a<br class="desktop-break"> research brief.</h1>
+        <p>See how a researcher, critic, writer, and editor turn a question into a sourced brief.</p>
+      </div>
+      <div class="intro-note">
+        <strong>Prepared examples</strong>
+        <span>Open the brief or step through the workflow in your browser. No API keys required.</span>
+      </div>
+    </section>
+
+    <section class="workspace" aria-label="Interactive research demo">
+      <aside class="controls">
+        <h2>Try an example</h2>
+        <label for="example">Research question</label>
+        <div class="select-wrap">
+          <select id="example">
+            <option value="azure">Hosting a portfolio app on Azure</option>
+            <option value="oidc">GitHub Actions authentication</option>
+          </select>
+        </div>
+        <button class="play" id="play" type="button">Play walkthrough</button>
+        <h3>Agent workflow</h3>
+        <ol class="steps" id="steps">
+          <li><button type="button" data-stage="0" aria-controls="report" aria-pressed="false"><span class="step-dot" aria-hidden="true"></span><span><strong>Researcher</strong><small>Collects evidence</small></span></button></li>
+          <li><button type="button" data-stage="1" aria-controls="report" aria-pressed="false"><span class="step-dot" aria-hidden="true"></span><span><strong>Critic</strong><small>Reviews coverage</small></span></button></li>
+          <li><button type="button" data-stage="2" aria-controls="report" aria-pressed="false"><span class="step-dot" aria-hidden="true"></span><span><strong>Writer</strong><small>Drafts the brief</small></span></button></li>
+          <li><button type="button" data-stage="3" aria-controls="report" aria-pressed="true"><span class="step-dot" aria-hidden="true"></span><span><strong>Editor</strong><small>Polishes the final brief</small></span></button></li>
+        </ol>
+      </aside>
+      <article class="report" id="report" aria-labelledby="report-title">
+        <p class="report-type" id="report-type">Final brief</p>
+        <h2 id="report-title">How can a portfolio app stay affordable on Azure?</h2>
+        <div id="report-content">
+          <noscript>Enable JavaScript to explore the examples, or read the project documentation below.</noscript>
+        </div>
+        <p class="visually-hidden" id="announcement" role="status" aria-live="polite"></p>
+      </article>
+    </section>
+
+    <section class="evidence" aria-labelledby="evidence-title">
+      <div>
+        <h2 id="evidence-title">Azure deployment</h2>
+        <p>The original Streamlit app was built with Docker, smoke-tested on Kubernetes with kind, and deployed to Azure Container Apps using Terraform and GitHub Actions OIDC.</p>
+      </div>
+      <div class="evidence-links">
+        <a href="https://github.com/hassanzafarr/azure-research-brief-agents/actions/runs/45845007114">Passing deployment run</a>
+        <a href="https://github.com/hassanzafarr/azure-research-brief-agents/blob/main/docs/azure-deployment.md">Architecture and setup</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

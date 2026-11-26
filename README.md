@@ -1,7 +1,8 @@
 # Research & Brief Generator (Multi-Agent Orchestration)
 
-Live demo: https://research-brief-agents-9saglp7dsgudsthnnvcxdh.streamlit.app
-(first brief is free, no signup needed)
+Explore a prepared research brief and each of the four agent stages. [Recruiter demo on GitHub](docs/recruiter-demo/)
+
+See how the Docker, Kubernetes, Terraform, and OIDC pipeline deployed the app. [Passing Azure deployment](https://github.com/hassanzafarr/azure-research-brief-agents/actions/runs/45845007114)
 
 A multi-agent system built with LangGraph. Give it a topic and four agents
 work together to produce a structured brief, with a feedback loop between
