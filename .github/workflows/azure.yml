@@ -170,6 +170,16 @@ jobs:
           terraform -chdir=infra/foundation plan -input=false -lock-timeout=5m -out=foundation.tfplan
           terraform -chdir=infra/foundation apply -input=false -lock-timeout=5m foundation.tfplan
 
+      - name: Refresh Azure login for the image push
+        if: steps.main.outputs.current == 'true'
+        uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6 # v2
+        env:
+          AZURE_LOGIN_PRE_CLEANUP: 'true'
+        with:
+          client-id: ${{ env.ARM_CLIENT_ID }}
+          tenant-id: ${{ env.ARM_TENANT_ID }}
+          subscription-id: ${{ env.ARM_SUBSCRIPTION_ID }}
+
       - name: Publish the tested image to Azure Container Registry
         if: steps.main.outputs.current == 'true'
         id: publish

@@ -17,6 +17,8 @@ flowchart LR
 
 GitHub Actions runs CI on open pull requests and pushes to `main`. When Azure is configured, a successful run on `main` provisions the foundation, pushes the tested Docker image to ACR, deploys its digest, and checks the live HTTPS endpoint. A commit tag makes the image easy to find in ACR. The digest makes the deployed revision reproducible. The app scales between zero and one replica.
 
+The workflow refreshes its Azure login before the image push because initial environment provisioning can outlast GitHub's OIDC assertion.
+
 ## Run the app and tests locally
 
 Use Python 3.12 and Docker.
