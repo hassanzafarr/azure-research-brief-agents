@@ -38,6 +38,8 @@ Use the Consumption profile with a minimum of zero replicas. Measure the actual 
 
 [Container Apps billing](https://learn.microsoft.com/en-us/azure/container-apps/billing) · [Azure Container Registry pricing](https://azure.microsoft.com/en-us/pricing/details/container-registry/)
 
+For the animated walkthrough, open `index.html` from this folder in a local browser. It includes both prepared examples.
+
 ## Deployment evidence
 
 The original Streamlit app was packaged with Docker, tested in a temporary Kubernetes cluster with kind, then deployed to Azure Container Apps through GitHub Actions and Terraform. GitHub authenticated to Azure through OIDC.
