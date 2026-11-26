@@ -127,6 +127,15 @@ asked to paste their own. With no secrets, every user pastes their own
 keys from the start. The free-run limit is per browser session, so set a
 spend cap in the Anthropic console if you expose this widely.
 
+## Azure deployment
+
+The Azure deployment workflow tests the LangGraph app, builds its Docker image,
+and runs a Kubernetes smoke test with kind. On `main`, it uses GitHub Actions
+OIDC and Terraform to publish the tested image to Azure Container Registry and
+deploy it to Azure Container Apps.
+
+[Local tests, Azure setup, and deployment walkthrough](docs/azure-deployment.md)
+
 ## License
 
 MIT - see [LICENSE](LICENSE).

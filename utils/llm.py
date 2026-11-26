@@ -7,12 +7,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def get_llm():
-    # Read the key at call time, not import time, so the web UI can serve
-    # multiple users each with their own key without leaking across them.
+def get_llm(*, api_key: str | None = None):
     return ChatAnthropic(
         model="claude-haiku-4-5-20251001",
         temperature=0.3,
         max_tokens=2000,
-        api_key=os.getenv("ANTHROPIC_API_KEY"),
+        api_key=api_key if api_key is not None else os.getenv("ANTHROPIC_API_KEY"),
     )

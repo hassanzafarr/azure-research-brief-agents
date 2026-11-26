@@ -6,12 +6,11 @@ Streamlit web UI.
 Key handling: a visitor gets one free brief on the host's keys (set as
 Streamlit secrets), then is asked to paste their own. Visitor keys are
 used right away with no limit. The free-run count is per browser session.
-Keys are written to os.environ before the graph runs (imported lazily in
-run_research) since the agents read them at call time.
+Each graph run receives its own keys and keeps them out of graph state.
 """
 
-import os
 import streamlit as st
+from streamlit.errors import StreamlitSecretNotFoundError
 
 st.set_page_config(page_title="Research Brief Generator", page_icon="🔎")
 
@@ -23,18 +22,16 @@ def get_host_keys():
         t = st.secrets.get("TAVILY_API_KEY")
         if a and t:
             return a, t
-    except Exception:
+    except StreamlitSecretNotFoundError:
         pass
     return None, None
 
 
-def run_research(topic: str):
+def run_research(topic: str, *, anthropic_key: str, tavily_key: str):
     """Stream the graph node-by-node, updating the UI as each agent runs."""
-    # Imported here (not at top) so the keys set in os.environ are already
-    # in place when the LLM/search clients are built.
     from graph.build import build_graph
 
-    graph = build_graph()
+    graph = build_graph(anthropic_key=anthropic_key, tavily_key=tavily_key)
     initial_state = {
         "topic": topic,
         "research_notes": [],
@@ -101,7 +98,7 @@ if free_available:
 with st.sidebar:
     st.header("API keys")
     st.caption(
-        "Used only for this session, never stored. Get them at "
+        "Used only for this session. Get them at "
         "[console.anthropic.com](https://console.anthropic.com) and "
         "[tavily.com](https://tavily.com) (both have free tiers)."
     )
@@ -114,6 +111,8 @@ topic = st.text_input(
 )
 
 if st.button("Generate brief", type="primary"):
+    anthropic_key = anthropic_key.strip()
+    tavily_key = tavily_key.strip()
     user_has_keys = bool(anthropic_key and tavily_key)
 
     # Decide which keys to use: the visitor's own, else the one free run.
@@ -129,18 +128,17 @@ if st.button("Generate brief", type="primary"):
         st.error("Enter a topic.")
     elif not use_anthropic:
         st.warning(
-            "Your free brief is used up. Add your own Anthropic and Tavily "
-            "keys in the sidebar to keep generating (both are free to get)."
+            "Add your Anthropic and Tavily API keys in the sidebar to generate a brief."
         )
     else:
-        os.environ["ANTHROPIC_API_KEY"] = use_anthropic
-        os.environ["TAVILY_API_KEY"] = use_tavily
-
-        with st.status("Running agents...", expanded=True):
+        with st.status("Running agents...", expanded=True) as status:
             try:
-                brief, notes = run_research(topic.strip())
-            except Exception as e:
-                st.error(f"Something went wrong: {e}")
+                brief, notes = run_research(
+                    topic.strip(), anthropic_key=use_anthropic, tavily_key=use_tavily
+                )
+            except Exception:
+                status.update(label="Generation failed", state="error")
+                st.error("Could not generate a brief. Check your API keys and try again.")
                 brief, notes = "", ""
 
         if brief:

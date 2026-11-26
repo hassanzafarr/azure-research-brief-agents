@@ -10,18 +10,19 @@ from utils.search import web_search
 from langchain_core.messages import HumanMessage
 
 
-def researcher_node(state: ResearchState) -> dict:
+def researcher_node(
+    state: ResearchState, *, anthropic_key: str | None = None, tavily_key: str | None = None
+) -> dict:
     topic = state["topic"]
     feedback = state.get("critic_feedback", "")
     loop_count = state.get("research_loops", 0)
 
-    llm = get_llm()
+    llm = get_llm(api_key=anthropic_key)
 
-    print(f"\n[Researcher] Pass #{loop_count + 1} on topic: {topic}")
+    print(f"\n[Researcher] Pass #{loop_count + 1}")
 
     if feedback:
         # Retry: turn the critic's feedback into a targeted query.
-        print(f"[Researcher] Addressing feedback: {feedback}")
         query_prompt = (
             f"Topic: {topic}\n"
             f"A reviewer said our research is missing this: {feedback}\n"
@@ -37,7 +38,7 @@ def researcher_node(state: ResearchState) -> dict:
     query_response = llm.invoke([HumanMessage(content=query_prompt)])
     search_query = query_response.content.strip()
 
-    raw_results = web_search(search_query)
+    raw_results = web_search(search_query, api_key=tavily_key)
 
     # Digest raw results into clean notes instead of storing them as-is.
     digest_prompt = (
@@ -49,7 +50,7 @@ def researcher_node(state: ResearchState) -> dict:
     digest_response = llm.invoke([HumanMessage(content=digest_prompt)])
     notes = digest_response.content.strip()
 
-    print(f"[Researcher] Found notes:\n{notes}\n")
+    print("[Researcher] Finished pass")
 
     return {
         "research_notes": [notes],  # appended via operator.add

@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: research-brief
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: research-brief
+  template:
+    metadata:
+      labels:
+        app: research-brief
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: app
+          image: research-brief:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8501
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 1Gi
+          startupProbe:
+            httpGet:
+              path: /_stcore/health
+              port: http
+            periodSeconds: 2
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /_stcore/health
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /_stcore/health
+              port: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: research-brief
+spec:
+  selector:
+    app: research-brief
+  ports:
+    - name: http
+      port: 8501
+      targetPort: http

@@ -7,11 +7,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def web_search(query: str, max_results: int = 5) -> str:
-    # Returns results as a formatted string for the LLM to read directly.
-    # Client is built per call so the web UI can serve users with their
-    # own keys.
-    client = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
+def web_search(query: str, max_results: int = 5, *, api_key: str | None = None) -> str:
+    client = TavilyClient(api_key=api_key if api_key is not None else os.getenv("TAVILY_API_KEY"))
     response = client.search(query=query, max_results=max_results)
 
     formatted = []

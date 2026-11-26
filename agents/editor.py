@@ -8,13 +8,13 @@ from utils.llm import get_llm
 from langchain_core.messages import HumanMessage
 
 
-def editor_node(state: ResearchState) -> dict:
+def editor_node(state: ResearchState, *, anthropic_key: str | None = None) -> dict:
     topic = state["topic"]
     draft = state["final_brief"]
 
-    llm = get_llm()
+    llm = get_llm(api_key=anthropic_key)
 
-    print(f"[Editor] Polishing brief on: {topic}")
+    print("[Editor] Polishing brief")
 
     edit_prompt = (
         f"Topic: {topic}\n"
@@ -39,7 +39,7 @@ def editor_node(state: ResearchState) -> dict:
     else:
         polished = text
 
-    print(f"[Editor] Done. {note}\n")
+    print("[Editor] Done")
 
     return {
         "final_brief": polished,

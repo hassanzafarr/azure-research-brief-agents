@@ -3,6 +3,8 @@ Graph wiring and routing. Defines the nodes, the edges between them, and
 the conditional edge after the Critic that creates the research loop.
 """
 
+from functools import partial
+
 from langgraph.graph import StateGraph, END
 from graph.state import ResearchState
 from agents.researcher import researcher_node
@@ -18,13 +20,16 @@ def route_after_critic(state: ResearchState) -> str:
     return "researcher"  # loop back for another pass
 
 
-def build_graph():
+def build_graph(*, anthropic_key: str | None = None, tavily_key: str | None = None):
     graph = StateGraph(ResearchState)
 
-    graph.add_node("researcher", researcher_node)
-    graph.add_node("critic", critic_node)
-    graph.add_node("writer", writer_node)
-    graph.add_node("editor", editor_node)
+    graph.add_node(
+        "researcher",
+        partial(researcher_node, anthropic_key=anthropic_key, tavily_key=tavily_key),
+    )
+    graph.add_node("critic", partial(critic_node, anthropic_key=anthropic_key))
+    graph.add_node("writer", partial(writer_node, anthropic_key=anthropic_key))
+    graph.add_node("editor", partial(editor_node, anthropic_key=anthropic_key))
 
     graph.set_entry_point("researcher")
 

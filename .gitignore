@@ -9,3 +9,11 @@ output/
 /graph.png
 /graph.mmd
 .streamlit/secrets.toml
+
+# Terraform local state, plans, and generated backend configuration.
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+*.tfvars.json

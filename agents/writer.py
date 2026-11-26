@@ -7,13 +7,13 @@ from utils.llm import get_llm
 from langchain_core.messages import HumanMessage
 
 
-def writer_node(state: ResearchState) -> dict:
+def writer_node(state: ResearchState, *, anthropic_key: str | None = None) -> dict:
     topic = state["topic"]
     all_notes = "\n\n".join(state["research_notes"])
 
-    print(f"[Writer] Drafting final brief on: {topic}")
+    print("[Writer] Drafting final brief")
 
-    llm = get_llm()
+    llm = get_llm(api_key=anthropic_key)
 
     write_prompt = (
         f"Topic: {topic}\n"
