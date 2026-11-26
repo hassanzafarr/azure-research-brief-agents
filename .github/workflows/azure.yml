@@ -5,6 +5,22 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      azure_client_id:
+        description: Azure deployment identity client ID
+        type: string
+      azure_tenant_id:
+        description: Azure tenant ID
+        type: string
+      azure_subscription_id:
+        description: Azure subscription ID
+        type: string
+      azure_resource_group:
+        description: Azure application resource group
+        type: string
+      azure_state_account:
+        description: Azure Terraform state storage account
+        type: string
 
 permissions:
   contents: read
@@ -75,11 +91,11 @@ jobs:
           scripts/smoke.sh http://127.0.0.1:8501
 
       - name: Prepare tested image for Azure
-        if: github.ref == 'refs/heads/main' && vars.AZURE_CLIENT_ID != ''
+        if: github.ref == 'refs/heads/main' && (vars.AZURE_CLIENT_ID || inputs.azure_client_id)
         run: docker save research-brief:local | gzip -1 >"$RUNNER_TEMP/research-brief.tar.gz"
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        if: github.ref == 'refs/heads/main' && vars.AZURE_CLIENT_ID != ''
+        if: github.ref == 'refs/heads/main' && (vars.AZURE_CLIENT_ID || inputs.azure_client_id)
         with:
           name: tested-container
           path: ${{ runner.temp }}/research-brief.tar.gz
@@ -87,7 +103,7 @@ jobs:
           retention-days: 1
 
   deploy:
-    if: github.ref == 'refs/heads/main' && vars.AZURE_CLIENT_ID != ''
+    if: github.ref == 'refs/heads/main' && (vars.AZURE_CLIENT_ID || inputs.azure_client_id)
     needs: test
     runs-on: ubuntu-24.04
     timeout-minutes: 45
@@ -99,11 +115,11 @@ jobs:
       id-token: write
     env:
       ARM_USE_OIDC: 'true'
-      ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
-      ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
-      ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-      TF_VAR_resource_group: ${{ vars.AZURE_RESOURCE_GROUP }}
-      AZURE_STATE_ACCOUNT: ${{ vars.AZURE_STATE_ACCOUNT }}
+      ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID || inputs.azure_client_id }}
+      ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID || inputs.azure_tenant_id }}
+      ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID || inputs.azure_subscription_id }}
+      TF_VAR_resource_group: ${{ vars.AZURE_RESOURCE_GROUP || inputs.azure_resource_group }}
+      AZURE_STATE_ACCOUNT: ${{ vars.AZURE_STATE_ACCOUNT || inputs.azure_state_account }}
     steps:
       - name: Check that this commit is still on main
         id: main
@@ -112,6 +128,11 @@ jobs:
         run: |
           head_sha=$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)
           if [[ "$GITHUB_SHA" == "$head_sha" ]]; then
+            : "${ARM_CLIENT_ID:?Set the Azure deployment identity client ID}"
+            : "${ARM_TENANT_ID:?Set the Azure tenant ID}"
+            : "${ARM_SUBSCRIPTION_ID:?Set the Azure subscription ID}"
+            : "${TF_VAR_resource_group:?Set the Azure application resource group}"
+            : "${AZURE_STATE_ACCOUNT:?Set the Azure Terraform state storage account}"
             echo 'current=true' >>"$GITHUB_OUTPUT"
           else
             echo 'This commit has been superseded on main.'
@@ -131,9 +152,9 @@ jobs:
       - uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6 # v2
         if: steps.main.outputs.current == 'true'
         with:
-          client-id: ${{ vars.AZURE_CLIENT_ID }}
-          tenant-id: ${{ vars.AZURE_TENANT_ID }}
-          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ env.ARM_CLIENT_ID }}
+          tenant-id: ${{ env.ARM_TENANT_ID }}
+          subscription-id: ${{ env.ARM_SUBSCRIPTION_ID }}
 
       - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3
         if: steps.main.outputs.current == 'true'

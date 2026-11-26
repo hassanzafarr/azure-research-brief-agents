@@ -55,6 +55,8 @@ Use Bash, Azure CLI, and an Azure subscription where you can register resource p
 4. Merge the deployment changes to `main` or select **Actions → Test and deploy to Azure → Run workflow** once the workflow is present on `main`. If Azure reports a permission error immediately after bootstrap, allow time for Azure RBAC propagation and rerun the workflow.
 5. Open the app URL in the completed run's summary. Enter your provider keys and generate a brief to verify a real research run.
 
+For a one-off deployment, enter the same five Azure identifiers in **Run workflow** on `main`. This works before you configure repository variables. Set the repository variables to enable deployments on future pushes to `main`.
+
 The GitHub identity can manage the app resource group, push images to its registry, read and write the state container, and grant or revoke the `AcrPull` role in the app resource group. The Container App uses its own managed identity to pull from ACR. Azure uses two independent Terraform state files so the registry can be created before the first app image is published.
 
 ## Inspect a deployment
